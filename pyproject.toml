@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "career-tracker-hr-api"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{include = "career_tracker_hr_api"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "4.2.6"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

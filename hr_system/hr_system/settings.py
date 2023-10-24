@@ -101,3 +101,8 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+NAME_MAX_LENGTH = 150
+ABOUT_MAX_LENGTH = 800
+DESCRIPTION_MAX_LENGTH = 150
+EMAIL_MAX_LENGTH = 254

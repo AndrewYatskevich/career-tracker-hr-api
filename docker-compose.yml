@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  hr-system-db:
+    image: postgres:15.4-alpine
+    ports:
+      - "5432:5432"
+    volumes:
+      - hr-system-db:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
+
+  hr-system:
+    build: .
+    volumes:
+      - ./hr_system:/code
+    env_file:
+      - ./.env
+
+volumes:
+  hr-system-db:

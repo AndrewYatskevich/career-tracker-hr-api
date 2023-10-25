@@ -98,12 +98,10 @@ class Applicant(models.Model):
         max_length=settings.EMAIL_MAX_LENGTH,
         unique=True,
         blank=True,
-        null=True,
     )
     phone = models.CharField(
         verbose_name="Телефон",
         blank=True,
-        null=True,
         validators=(
             RegexValidator(
                 regex="^\+?1?\d{9,15}$",
@@ -114,7 +112,6 @@ class Applicant(models.Model):
     telegram = models.CharField(
         verbose_name="Telegram",
         blank=True,
-        null=True,
         validators=(
             RegexValidator(
                 regex="^@[\w\d_]{5,32}$",
@@ -125,12 +122,14 @@ class Applicant(models.Model):
     specialization = models.ForeignKey(
         to=Specialization,
         verbose_name="Специализация",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
     )
     grade = models.ForeignKey(
         to=Grade,
         verbose_name="Уровень",
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
     )
     experience = models.PositiveSmallIntegerField(
         verbose_name="Опыт",
@@ -138,11 +137,10 @@ class Applicant(models.Model):
     activity = models.PositiveSmallIntegerField(
         verbose_name="Активность",
     )
-    photo = models.FilePathField(
+    photo = models.ImageField(
         verbose_name="Фотография соискателя",
-        path=settings.PHOTO_PATH,
-        blank=True,
-        null=True,
+        upload_to=settings.PHOTO_PATH,
+        default=None,
     )
     resume_pdf = models.FilePathField(
         verbose_name="Резюме в формате pdf",

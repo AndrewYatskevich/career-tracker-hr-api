@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from hr_system.applicants.models import Applicant, Skill, Specialization
+from applicants.models import Applicant, Skill, Specialization
 
 
 class SpecializationSerializer(serializers.ModelSerializer):

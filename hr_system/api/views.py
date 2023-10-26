@@ -5,11 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from hr_system.api.serializers import (
-    ApplicantSerializer,
-    ShortApplicantSerializer,
-)
-from hr_system.applicants.models import Applicant, Favorites
+from api.serializers import ApplicantSerializer, ShortApplicantSerializer
+from applicants.models import Applicant, Favorites
 
 User = get_user_model()
 
@@ -26,7 +23,7 @@ class ListRetrievePutDeleteViewSet(
     pass
 
 
-class ApplicantsPutDeleteViewSet(ListRetrievePutDeleteViewSet):
+class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
     """
     Вьюсет для соискателей.
     Получение соискателя или списка соискателей.

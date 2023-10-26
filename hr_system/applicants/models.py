@@ -35,25 +35,6 @@ class Specialization(models.Model):
         return f"{self.name}"
 
 
-class Grade(models.Model):
-    """Модель уровня навыков."""
-
-    name = models.CharField(
-        verbose_name="Название",
-        max_length=settings.DESCRIPTION_MAX_LENGTH,
-        unique=True,
-        db_index=True,
-    )
-
-    class Meta:
-        verbose_name = "Уровень"
-        verbose_name_plural = "Уровни"
-        ordering = ["name"]
-
-    def __str__(self) -> str:
-        return f"{self.name}"
-
-
 class Skill(models.Model):
     """Модель для навыков."""
 
@@ -125,12 +106,6 @@ class Applicant(models.Model):
     specialization = models.ForeignKey(
         to=Specialization,
         verbose_name="Специализация",
-        on_delete=models.SET_NULL,
-        null=True,
-    )
-    grade = models.ForeignKey(
-        to=Grade,
-        verbose_name="Уровень",
         on_delete=models.SET_NULL,
         null=True,
     )

@@ -1,14 +1,32 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
-from hr_system.applicants.models import Applicant, Skill
+from hr_system.applicants.models import Applicant, Skill, Specialization
+
+
+class SpecializationSerializer(serializers.ModelSerializer):
+    """Сериализатор для специализаций."""
+
+    class Meta:
+        model = Specialization
+        fields = ("name", "position")
+
+
+class SkillSerializer(serializers.ModelSerializer):
+    """Сериализатор для навыков."""
+
+    class Meta:
+        model = Skill
+        fields = ("name",)
 
 
 class ApplicantSerializer(serializers.ModelSerializer):
     """Сериализатор для соискателей."""
 
-    skills = serializers.PrimaryKeyRelatedField(
-        queryset=Skill.objects.all(),
+    specialization = SpecializationSerializer(
+        read_only=True,
+    )
+    skills = SkillSerializer(
         many=True,
     )
     is_liked = SerializerMethodField()
@@ -25,7 +43,6 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "email",
             "telegram",
             "specialization",
-            "grade",
             "experience",
             "activity",
             "photo",
@@ -55,7 +72,6 @@ class ShortApplicantSerializer(ApplicantSerializer):
             "email",
             "telegram",
             "specialization",
-            "grade",
             "experience",
             "activity",
             "photo",

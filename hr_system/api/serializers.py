@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
+from api.utils import extract_domain
 from applicants.models import Applicant, Skill, Specialization
 
 
@@ -30,6 +31,7 @@ class ApplicantSerializer(serializers.ModelSerializer):
         many=True,
     )
     is_liked = SerializerMethodField()
+    resume_domain = SerializerMethodField()
 
     class Meta:
         model = Applicant
@@ -51,6 +53,7 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "resume_url",
             "portfolio_url",
             "is_liked",
+            "resume_domain",
         )
 
     def get_is_liked(self, applicant: Applicant) -> bool:
@@ -59,6 +62,14 @@ class ApplicantSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
 
         return user.favorites.filter(applicant=applicant).exists()
+
+    def get_resume_domain(self, applicant: Applicant) -> str | None:
+        """Отображает доменное имя url-адреса резюме."""
+
+        received_url = applicant.resume_url
+
+        if received_url:
+            return extract_domain(received_url)
 
 
 class ShortApplicantSerializer(ApplicantSerializer):

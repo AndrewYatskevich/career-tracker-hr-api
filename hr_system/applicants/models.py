@@ -1,6 +1,9 @@
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.validators import RegexValidator
 from django.db import models
+
+User = get_user_model()
 
 
 class Specialization(models.Model):
@@ -27,25 +30,6 @@ class Specialization(models.Model):
                 fields=["name", "position"], name="unique_specialization"
             ),
         ]
-
-    def __str__(self) -> str:
-        return f"{self.name}"
-
-
-class Grade(models.Model):
-    """Модель уровней навыков."""
-
-    name = models.CharField(
-        verbose_name="Название",
-        max_length=settings.DESCRIPTION_MAX_LENGTH,
-        unique=True,
-        db_index=True,
-    )
-
-    class Meta:
-        verbose_name = "Уровень"
-        verbose_name_plural = "Уровни"
-        ordering = ["name"]
 
     def __str__(self) -> str:
         return f"{self.name}"
@@ -125,12 +109,6 @@ class Applicant(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
-    grade = models.ForeignKey(
-        to=Grade,
-        verbose_name="Уровень",
-        on_delete=models.SET_NULL,
-        null=True,
-    )
     experience = models.PositiveSmallIntegerField(
         verbose_name="Опыт",
     )
@@ -171,3 +149,32 @@ class Applicant(models.Model):
 
     def __str__(self) -> str:
         return f"{self.last_name} {self.first_name}"
+
+
+class Favorites(models.Model):
+    """Модель для избранного."""
+
+    user = models.ForeignKey(
+        to=User,
+        verbose_name="Пользователь",
+        on_delete=models.CASCADE,
+    )
+    applicant = models.ForeignKey(
+        to=Applicant,
+        verbose_name="Соискатель",
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        default_related_name = "favorites"
+        verbose_name = "Избранное"
+        verbose_name_plural = "Избранное"
+        ordering = ("-id",)
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "applicant"], name="unique_favorites"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.user}: {self.applicant}"

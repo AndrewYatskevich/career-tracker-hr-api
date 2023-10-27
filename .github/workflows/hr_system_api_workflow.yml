@@ -1,0 +1,57 @@
+name: hr-system-api workflow
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build-and-push:
+    name: Build and push api image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up docker buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Cache docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-multi-buildx-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-multi-buildx
+
+      - name: Push to Docker Hub
+        uses: docker/build-push-action@v3
+        with:
+          context: ./
+          file: Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/hr-system-api:latest
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,mode=max,dest=/tmp/.buildx-cache-new
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
+
+  trigger-deploy-workflow:
+    needs: build-and-push
+    name: Trigger deploy workflow
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger deploy workflow
+        uses: peter-evans/repository-dispatch@v2
+        with:
+          token: ${{ secrets.ACTION_TOKEN }}
+          repository: AndrewYatskevich/career-tracker-hr-system
+          event-type: deploy

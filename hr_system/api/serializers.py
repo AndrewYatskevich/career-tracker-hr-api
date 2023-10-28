@@ -70,22 +70,3 @@ class ApplicantSerializer(serializers.ModelSerializer):
 
         if received_url:
             return extract_domain(received_url)
-
-
-class ShortApplicantSerializer(ApplicantSerializer):
-    """Сериализатор для соискателей. Компактная версия."""
-
-    class Meta:
-        model = Applicant
-        fields = (
-            "first_name",
-            "last_name",
-            "email",
-            "telegram",
-            "specialization",
-            "experience",
-            "activity",
-            "photo",
-            "skills",
-            "is_liked",
-        )

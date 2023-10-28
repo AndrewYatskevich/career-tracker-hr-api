@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from api.serializers import ApplicantSerializer, ShortApplicantSerializer
+from api.serializers import ApplicantSerializer
 from applicants.models import Applicant, Favorites
 
 User = get_user_model()
@@ -31,11 +31,6 @@ class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
 
     queryset = Applicant.objects.all()
     serializer_class = ApplicantSerializer
-
-    def get_serializer_class(self):
-        if self.action == "retrieve":
-            return ShortApplicantSerializer
-        return super().get_serializer_class()
 
     @action(
         methods=["put", "delete"],

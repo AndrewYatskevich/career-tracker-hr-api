@@ -44,6 +44,11 @@ class Skill(models.Model):
         unique=True,
         db_index=True,
     )
+    specialization = models.ManyToManyField(
+        to=Specialization,
+        verbose_name="Специализация",
+        related_name="skills",
+    )
 
     class Meta:
         verbose_name = "Навык"

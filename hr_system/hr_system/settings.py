@@ -108,4 +108,4 @@ ABOUT_MAX_LENGTH = 800
 DESCRIPTION_MAX_LENGTH = 150
 EMAIL_MAX_LENGTH = 254
 PHOTO_PATH = "applicants/images/"
-RESUME_PATH = "applicants/resumes/"
+RESUME_PATH = MEDIA_ROOT / "applicants/resumes/"

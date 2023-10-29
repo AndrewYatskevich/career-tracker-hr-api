@@ -19,9 +19,15 @@ WAGE_AMOUNT_VALIDATORS = [MinValueValidator(1), MaxValueValidator(10000000)]
 class WorkLocation(models.Model):
     type = models.CharField(choices=WorkLocationType.choices)
 
+    def __str__(self) -> str:
+        return f"{self.type}"
+
 
 class Employment(models.Model):
     type = models.CharField(choices=EmploymentType.choices)
+
+    def __str__(self) -> str:
+        return f"{self.type}"
 
 
 class Vacancy(models.Model):
@@ -46,6 +52,9 @@ class Vacancy(models.Model):
         choices=VacancyStatus.choices, default=VacancyStatus.ACTIVE
     )
 
+    def __str__(self) -> str:
+        return f"{self.name}"
+
 
 class Wage(models.Model):
     min_amount = models.IntegerField(validators=WAGE_AMOUNT_VALIDATORS)
@@ -62,3 +71,6 @@ class Wage(models.Model):
                 name="min_amount_lt_max_amount",
             )
         ]
+
+    def __str__(self) -> str:
+        return f"{self.vacancy}"

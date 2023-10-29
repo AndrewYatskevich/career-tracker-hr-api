@@ -4,20 +4,39 @@ import random
 from django.core.management import BaseCommand
 
 from applicants.models import Applicant, Skill, Specialization
+from users.models import CustomUser
+from vacancies.enums import CurrencyType, EmploymentType, WorkLocationType
+from vacancies.models import Employment, Vacancy, Wage, WorkLocation
 
 
 class Command(BaseCommand):
     """
-    Импорт данных из skills.csv и applicants.csv
+    Импорт данных из skills.csv, applicants.csv и vacancies.csv
     Замещает все ранее созданные данные.
     Для запуска введите команду в консоль: python3 manage.py import_data
     """
 
-    help = "Import data from skills.csv and applicants.csv files"
+    help = (
+        "Import data from skills.csv, applicants.csv "
+        "and vacancies.csv files"
+    )
 
     def handle(self, *args, **options) -> None:
         skills_file_path = "data/skills.csv"
         applicants_file_path = "data/applicants.csv"
+        vacancies_file_path = "data/vacancies.csv"
+
+        user_email = input("Enter user email: ")
+
+        try:
+            user = CustomUser.objects.get(email=user_email)
+        except CustomUser.DoesNotExist:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"The user with email {user_email} " f"was not found."
+                )
+            )
+            return
 
         self.stdout.write(
             self.style.WARNING("Removing old data from " "the database.")
@@ -26,6 +45,10 @@ class Command(BaseCommand):
         Specialization.objects.all().delete()
         Skill.objects.all().delete()
         Applicant.objects.all().delete()
+        WorkLocation.objects.all().delete()
+        Employment.objects.all().delete()
+        Vacancy.objects.all().delete()
+        Wage.objects.all().delete()
 
         self.stdout.write(self.style.WARNING("Start data import."))
         self.stdout.write(self.style.WARNING("Import specializations."))
@@ -114,9 +137,61 @@ class Command(BaseCommand):
                 )
 
                 applicants.append(new_applicant)
+
         Applicant.objects.bulk_create(applicants)
 
         for applicant in Applicant.objects.all():
             applicant.skills.set(applicant.specialization.skills.all())
+
+        self.stdout.write(self.style.WARNING("Import vacancies."))
+
+        onsite = WorkLocation.objects.create(type=WorkLocationType.ONSITE)
+        hybrid = WorkLocation.objects.create(type=WorkLocationType.HYBRID)
+        remote = WorkLocation.objects.create(type=WorkLocationType.REMOTE)
+
+        self_employment = Employment.objects.create(
+            type=EmploymentType.SELF_EMPLOYMENT
+        )
+        civil_contract = Employment.objects.create(
+            type=EmploymentType.CIVIL_CONTRACT
+        )
+        labor_contract = Employment.objects.create(
+            type=EmploymentType.LABOR_CONTRACT
+        )
+
+        with open(vacancies_file_path, "r", encoding="utf-8") as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                new_vacancy = Vacancy()
+                new_vacancy.user = user
+                new_vacancy.department = row["department"]
+                new_vacancy.name = row["name"]
+                new_vacancy.city = row["city"]
+                new_vacancy.description = "Описание вакансии"
+                new_vacancy.responsibilities = "Обязанности соискателя"
+                new_vacancy.requirements = "Требования к соискателю"
+                new_vacancy.benefits = "Условия вакансии"
+
+                new_vacancy.save()
+
+                new_vacancy.location_type.add(
+                    random.choice([onsite, hybrid, remote])
+                )
+                specialization = Specialization.objects.get(
+                    position=row["specialization"]
+                )
+                new_vacancy.skills.set(specialization.skills.all())
+                new_vacancy.employment_type.add(
+                    random.choice(
+                        [self_employment, civil_contract, labor_contract]
+                    )
+                )
+
+                Wage.objects.create(
+                    min_amount=1000,
+                    max_amount=2000,
+                    currency=CurrencyType.RUB,
+                    vacancy=new_vacancy,
+                )
 
         self.stdout.write(self.style.SUCCESS("Import complete."))

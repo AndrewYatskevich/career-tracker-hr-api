@@ -21,6 +21,21 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = ("name",)
 
 
+class SpecializationSkillSerializer(serializers.ModelSerializer):
+    """Сериализатор для специализаций со связанными навыками."""
+
+    related_skills = SerializerMethodField()
+
+    class Meta:
+        model = Specialization
+        fields = ("name", "related_skills")
+
+    def get_related_skills(self, specialization: Specialization) -> list[str]:
+        """Возвращает список связанных со специализацией навыков."""
+
+        return list(specialization.skills.values_list("name", flat=True))
+
+
 class ApplicantSerializer(serializers.ModelSerializer):
     """Сериализатор для соискателей."""
 
@@ -64,7 +79,7 @@ class ApplicantSerializer(serializers.ModelSerializer):
         return user.favorites.filter(applicant=applicant).exists()
 
     def get_resume_domain(self, applicant: Applicant) -> str | None:
-        """Отображает доменное имя url-адреса резюме."""
+        """Возвращает доменное имя url-адреса резюме."""
 
         received_url = applicant.resume_url
 

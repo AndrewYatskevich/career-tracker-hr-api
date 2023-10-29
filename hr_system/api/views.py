@@ -5,8 +5,8 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from api.serializers import ApplicantSerializer
-from applicants.models import Applicant, Favorites
+from api.serializers import ApplicantSerializer, SpecializationSkillSerializer
+from applicants.models import Applicant, Favorites, Specialization
 
 User = get_user_model()
 
@@ -23,7 +23,17 @@ class ListRetrievePutDeleteViewSet(
     pass
 
 
-class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
+class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Вьюсет для специализаций.
+    Получение списка специализаций и связанных с ними навыков.
+    """
+
+    queryset = Specialization.objects.all()
+    serializer_class = SpecializationSkillSerializer
+
+
+class ApplicantViewSet(ListRetrievePutDeleteViewSet):
     """
     Вьюсет для соискателей.
     Получение соискателя или списка соискателей.

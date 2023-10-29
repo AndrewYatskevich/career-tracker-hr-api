@@ -6,14 +6,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from applicants.models import Applicant, Favorites, Specialization
 from api.serializers import (
     ApplicantSerializer,
-    ShortApplicantSerializer,
+    SpecializationSkillSerializer,
     UserSerializer,
     VacancyDetailSerializer,
     VacancySerializer,
 )
-from applicants.models import Applicant, Favorites
 from vacancies.models import Vacancy
 
 User = get_user_model()
@@ -30,7 +30,7 @@ class ListRetrievePutDeleteViewSet(
 
     pass
 
-
+  
 class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -57,8 +57,19 @@ class VacancyViewSet(
         serializer = VacancySerializer(request.user.vacancies.all(), many=True)
         return Response(serializer.data)
 
+      
+class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Вьюсет для специализаций.
+    Получение списка специализаций и связанных с ними навыков.
+    """
+
+    queryset = Specialization.objects.all()
+    serializer_class = SpecializationSkillSerializer     
+      
 
 class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
+
     """
     Вьюсет для соискателей.
     Получение соискателя или списка соискателей.
@@ -66,11 +77,6 @@ class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
 
     queryset = Applicant.objects.all()
     serializer_class = ApplicantSerializer
-
-    def get_serializer_class(self):
-        if self.action == "retrieve":
-            return ShortApplicantSerializer
-        return super().get_serializer_class()
 
     @action(
         methods=["put", "delete"],

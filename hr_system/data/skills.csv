@@ -1,0 +1,16 @@
+Специальность,Направления,Навык 1,Навык 2,Навык 3,Навык 4,Навык 5,Навык 6,Навык 7,Навык 8,Навык 9,Навык 10,Навык 11,Навык 12,Навык 13,Навык 14,Навык 15,Навык 16,Навык 17,Навык 18,Навык 19,Навык 20
+UX/UI Дизайнер,UX/UI Дизайн,Figma,UX-копирайтинг,UX-тестирование,Конкурентный анализ,JTBD и User Stories,Анимация,Вайрфреймы,UI-Kit,Аудит юзабилити,Adobe Photoshop,,,,,,,,,,
+Frontend-разработчик,Frontend,HTML,CSS,Flexbox,Git,BASH,JavaScript,TypeScript,React,Redux,Grid  Layout,DOM,Webpack,React Router,ООП,,,,,,
+Backend-разработчик,Backend,API,Python,SQL,NoSQL,PHP,Git,Go,Java,C,C++,C#,Работа с сервером,,,,,,,,
+DevOps,DevOps,CI/CD, Infrastructure as Code, Jenkins ,GitLab CI ,NGINX ,SonarQube ,Backups ,Nexus, Ansible, Load-balancing, Docker,Kubernetes ,Helm ,Linux,Prometheus,Grafana,Logging,Troubleshooting,,
+Аналитик,Бизнес аналитика,Python,Jupyter Notebook,SQL,PostgreSQL,Tableau,А/В-тесты,,,,,,,,,,,,,,
+Project manager,Project management,GanttPRO,Miro,Figma,Kaiten,Google Sheets,Kanban,Waterfall,Agile,Scrum,,,,,,,,,,,
+Специалист по Data Science,Data Science,Python,Jupyter Notebook,Pandas,SQL,Keras,Catboost,Scikit-learn,,,,,,,,,,,,,
+Графический дизайнер,Графический дизайн,Figma,Adobe Illustrator,Adobe Photoshop,Вёрстка,Брендбук,Анализ аудитории,Поиск идей,Презентации,Типографика,Мерч,,,,,,,,,,
+Иллюстратор,Иллюстрация,Анализ аудитории,Генерация идей,Сторителлинг,Цветовая палитра,Типографика,Композиция,Метафора,Формообразование,,,,,,,,,,,,
+Интернет-маркетолог,Маркетинг,Google Таблицы,Яндекс Директ,Wordstat,Яндекс Метрика,Google Analytics,VK Реклама,Telegram Ads,Tilda  Publishing,Яндекс Вебмастер,Sendsay,,,,,,,,,,
+Android-разработчик,Android разработка,Java,Kotlin,Git,Gradle,Android SDK,Xml,MVP,MVVM,Koin,REST,OkHttp,Retrofit,Coroutines,RxJava,"Content Provider
+",SQLite,Room,JVM Tests,Unit Testing,
+iOS-разработчик,IOS разработка,Swift,Git,UIKit,AutoLayout,UICollectionView,MVC,MVVM,Сlean architecture,CocoaPods,REST,GCD,UserDefaults,Keychain,SQLite,CoreData,Unit Testing,UI Testing,,,
+Инженер по тестированию,QA тестирование ,Charles,Postman,apiDoc и Swagger,"JSON, XML и XSD",SQL,Android Studio,IntelliJ IDEA,Git,Maven,REST Assured,Selenium WebDriver,Allure,Selenide,Jenkins,Junit,PyCharm,Pytest,DevTools,Xpath,CSS
+Python-разработчик,Python,Python,Django,GitHub,SQL,BASH,PostgreSQL,Nginx,Gunicorn,Docker,Docker Hub,,,,,,,,,,

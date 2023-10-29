@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -13,7 +14,6 @@ DEBUG = os.getenv("DEBUG", False)
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(", ")
 
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -22,8 +22,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "rest_framework_simplejwt",
+    "users",
     "api",
     "applicants",
+    "vacancies",
 ]
 
 MIDDLEWARE = [
@@ -56,7 +59,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "hr_system.wsgi.application"
 
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -67,7 +69,6 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT"),
     }
 }
-
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -84,7 +85,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 LANGUAGE_CODE = "ru"
 
 TIME_ZONE = "UTC"
@@ -92,7 +92,6 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 
 USE_TZ = True
-
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "static"
@@ -102,10 +101,23 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+AUTH_USER_MODEL = "users.CustomUser"
+
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
 
 NAME_MAX_LENGTH = 150
 ABOUT_MAX_LENGTH = 800
 DESCRIPTION_MAX_LENGTH = 150
 EMAIL_MAX_LENGTH = 254
+USER_PHOTO_PATH = "users/images/"
 PHOTO_PATH = "applicants/images/"
 RESUME_PATH = "applicants/resumes/"

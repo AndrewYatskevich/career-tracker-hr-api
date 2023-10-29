@@ -2,11 +2,19 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from api.serializers import ApplicantSerializer, ShortApplicantSerializer
+from api.serializers import (
+    ApplicantSerializer,
+    ShortApplicantSerializer,
+    UserSerializer,
+    VacancyDetailSerializer,
+    VacancySerializer,
+)
 from applicants.models import Applicant, Favorites
+from vacancies.models import Vacancy
 
 User = get_user_model()
 
@@ -21,6 +29,33 @@ class ListRetrievePutDeleteViewSet(
     """Обобщенное представление для обработки GET, PUT, DELETE запросов."""
 
     pass
+
+
+class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class VacancyViewSet(
+    mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
+):
+    queryset = Vacancy.objects.all()
+    serializer_class = VacancyDetailSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return VacancySerializer
+        return super().get_serializer_class()
+
+    @action(
+        detail=False,
+        methods=("get",),
+        url_path="my",
+    )
+    def get_my_vacancies(self, request):
+        serializer = VacancySerializer(request.user.vacancies.all(), many=True)
+        return Response(serializer.data)
 
 
 class ApplicantsViewSet(ListRetrievePutDeleteViewSet):

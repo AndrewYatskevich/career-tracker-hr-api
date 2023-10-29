@@ -76,8 +76,8 @@ class Command(BaseCommand):
         telegram = "@test_telegram"
         experience_range = 5
         activity_range = 11
-        photo_title = "no_photo.png"
-        resume_title = "test.pdf"
+        photo_path = "applicants/images/no_photo.png"
+        resume_path = "applicants/resumes/test.pdf"
         resume_url = "https://www.notion.so/"
         portfolio_url = [
             "https://github.com/test_user",
@@ -104,8 +104,8 @@ class Command(BaseCommand):
                 new_applicant.specialization = Specialization.objects.get(
                     position=position
                 )
-                new_applicant.photo = photo_title
-                new_applicant.resume_pdf = resume_title
+                new_applicant.photo = photo_path
+                new_applicant.resume_pdf = resume_path
                 new_applicant.resume_url = resume_url
                 new_applicant.portfolio_url = random.choice(portfolio_url)
                 new_applicant.about_me = (

@@ -42,15 +42,14 @@ class ApplicantSerializer(serializers.ModelSerializer):
     specialization = SpecializationSerializer(
         read_only=True,
     )
-    skills = SkillSerializer(
-        many=True,
-    )
+    skills = SerializerMethodField()
     is_liked = SerializerMethodField()
     resume_domain = SerializerMethodField()
 
     class Meta:
         model = Applicant
         fields = (
+            "id",
             "first_name",
             "last_name",
             "city",
@@ -71,12 +70,20 @@ class ApplicantSerializer(serializers.ModelSerializer):
             "resume_domain",
         )
 
+    def get_skills(self, specialization: Specialization) -> list[str]:
+        """Возвращает список связанных со специализацией навыков."""
+
+        return list(specialization.skills.values_list("name", flat=True))
+
     def get_is_liked(self, applicant: Applicant) -> bool:
         """Проверяет добавлен ли соискатель в избранное."""
 
         user = self.context["request"].user
 
-        return user.favorites.filter(applicant=applicant).exists()
+        if user.is_authenticated:
+            return user.favorites.filter(applicant=applicant).exists()
+        else:
+            return False
 
     def get_resume_domain(self, applicant: Applicant) -> str | None:
         """Возвращает доменное имя url-адреса резюме."""

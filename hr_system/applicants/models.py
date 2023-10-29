@@ -93,7 +93,10 @@ class Applicant(models.Model):
         blank=True,
         validators=(
             RegexValidator(
-                regex="^\+?1?\d{9,15}$",
+                regex=(
+                    "^(\+\d{1,4}\s?)?(\d{1,4}[\s-]?)?(\(\d{1,}\)"
+                    "[\s-]?)?\d{1,}([\s-]?\d{1,}){1,}$"
+                ),
                 message="Введите номер телефона",
             ),
         ),
@@ -124,10 +127,13 @@ class Applicant(models.Model):
         verbose_name="Фотография соискателя",
         upload_to=settings.PHOTO_PATH,
         default=None,
+        blank=True,
+        null=True,
     )
-    resume_pdf = models.FilePathField(
+    resume_pdf = models.FileField(
         verbose_name="Резюме в формате pdf",
-        path=settings.RESUME_PATH,
+        upload_to=settings.RESUME_PATH,
+        default=None,
         blank=True,
         null=True,
     )
@@ -145,6 +151,7 @@ class Applicant(models.Model):
         to=Skill,
         verbose_name="Навыки",
         related_name="applicants",
+        blank=True,
     )
 
     class Meta:

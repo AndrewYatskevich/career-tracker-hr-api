@@ -2,17 +2,55 @@ from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
 from api.utils import extract_domain
-from applicants.models import Applicant, Skill, Specialization
+from applicants.models import Applicant, Skill, Specialization, User
+from vacancies.models import Employment, Vacancy, Wage, WorkLocation
 
 
-class SpecializationSerializer(serializers.ModelSerializer):
-    """Сериализатор для специализаций."""
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ("company_name", "image")
+
+
+class WageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Wage
+        fields = ("min_amount", "max_amount", "currency")
+
+        
+class VacancySerializer(serializers.ModelSerializer):
+    location_type = serializers.SlugRelatedField(
+        read_only=True, many=True, slug_field="type"
+    )
 
     class Meta:
-        model = Specialization
-        fields = ("name", "position")
+        model = Vacancy
+        fields = ("name", "city", "location_type")
 
 
+class VacancyDetailSerializer(serializers.ModelSerializer):
+    location_type = serializers.SlugRelatedField(
+        queryset=WorkLocation.objects.all(), many=True, slug_field="type"
+    )
+    employment_type = serializers.SlugRelatedField(
+        queryset=Employment.objects.all(), many=True, slug_field="type"
+    )
+    wage = WageSerializer()
+    skills = serializers.SlugRelatedField(
+        queryset=Skill.objects.all(), many=True, slug_field="name"
+    )
+
+    class Meta:
+        model = Vacancy
+        fields = "__all__"
+
+    def create(self, validated_data):
+        wage_data = validated_data.pop("wage")
+        vacancy = super().create(validated_data)
+        Wage.objects.create(vacancy=vacancy, **wage_data)
+        return vacancy
+
+      
 class SkillSerializer(serializers.ModelSerializer):
     """Сериализатор для навыков."""
 
@@ -34,6 +72,14 @@ class SpecializationSkillSerializer(serializers.ModelSerializer):
         """Возвращает список связанных со специализацией навыков."""
 
         return list(specialization.skills.values_list("name", flat=True))
+
+      
+class SpecializationSerializer(serializers.ModelSerializer):
+    """Сериализатор для специализаций."""
+
+    class Meta:
+        model = Specialization
+        fields = ("name", "position")
 
 
 class ApplicantSerializer(serializers.ModelSerializer):

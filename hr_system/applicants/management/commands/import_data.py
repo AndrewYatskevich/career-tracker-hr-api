@@ -5,8 +5,8 @@ from django.core.management import BaseCommand
 
 from applicants.models import Applicant, Skill, Specialization
 from users.models import CustomUser
-from vacancies.enums import CurrencyType, EmploymentType, WorkLocationType
-from vacancies.models import Employment, Vacancy, Wage, WorkLocation
+from vacancies.enums import CurrencyType, EmploymentType, WorkplaceType
+from vacancies.models import Vacancy
 
 
 class Command(BaseCommand):
@@ -45,10 +45,7 @@ class Command(BaseCommand):
         Specialization.objects.all().delete()
         Skill.objects.all().delete()
         Applicant.objects.all().delete()
-        WorkLocation.objects.all().delete()
-        Employment.objects.all().delete()
         Vacancy.objects.all().delete()
-        Wage.objects.all().delete()
 
         self.stdout.write(self.style.WARNING("Start data import."))
         self.stdout.write(self.style.WARNING("Import specializations."))
@@ -145,20 +142,6 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.WARNING("Import vacancies."))
 
-        onsite = WorkLocation.objects.create(type=WorkLocationType.ONSITE)
-        hybrid = WorkLocation.objects.create(type=WorkLocationType.HYBRID)
-        remote = WorkLocation.objects.create(type=WorkLocationType.REMOTE)
-
-        self_employment = Employment.objects.create(
-            type=EmploymentType.SELF_EMPLOYMENT
-        )
-        civil_contract = Employment.objects.create(
-            type=EmploymentType.CIVIL_CONTRACT
-        )
-        labor_contract = Employment.objects.create(
-            type=EmploymentType.LABOR_CONTRACT
-        )
-
         with open(vacancies_file_path, "r", encoding="utf-8") as file:
             reader = csv.DictReader(file)
             for row in reader:
@@ -171,27 +154,21 @@ class Command(BaseCommand):
                 new_vacancy.responsibilities = "Обязанности соискателя"
                 new_vacancy.requirements = "Требования к соискателю"
                 new_vacancy.benefits = "Условия вакансии"
+                new_vacancy.workplace = "Офис"
+                new_vacancy.wage_min = 200
+                new_vacancy.wage_max = 400
+                new_vacancy.wage_currency = "USD"
+                new_vacancy.experience_min = 3
+                new_vacancy.experience_max = 6
 
                 new_vacancy.save()
 
-                new_vacancy.location_type.add(
-                    random.choice([onsite, hybrid, remote])
-                )
+                # new_vacancy.location_type.add(
+                #     random.choice([onsite, hybrid, remote])
+                # )
                 specialization = Specialization.objects.get(
                     position=row["specialization"]
                 )
                 new_vacancy.skills.set(specialization.skills.all())
-                new_vacancy.employment_type.add(
-                    random.choice(
-                        [self_employment, civil_contract, labor_contract]
-                    )
-                )
-
-                Wage.objects.create(
-                    min_amount=1000,
-                    max_amount=2000,
-                    currency=CurrencyType.RUB,
-                    vacancy=new_vacancy,
-                )
 
         self.stdout.write(self.style.SUCCESS("Import complete."))

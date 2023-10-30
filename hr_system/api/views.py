@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from applicants.models import Applicant, Favorites, Specialization
 from api.serializers import (
     ApplicantSerializer,
     SpecializationSkillSerializer,
@@ -14,6 +13,7 @@ from api.serializers import (
     VacancyDetailSerializer,
     VacancySerializer,
 )
+from applicants.models import Applicant, Favorites, Specialization
 from vacancies.models import Vacancy
 
 User = get_user_model()
@@ -30,7 +30,7 @@ class ListRetrievePutDeleteViewSet(
 
     pass
 
-  
+
 class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -57,16 +57,17 @@ class VacancyViewSet(
         serializer = VacancySerializer(request.user.vacancies.all(), many=True)
         return Response(serializer.data)
 
-      
+
 class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
     """
     Вьюсет для специализаций.
     Получение списка специализаций и связанных с ними навыков.
     """
 
-    queryset = Specialization.objects.all()
-    serializer_class = SpecializationSkillSerializer     
-      
+    queryset = Specialization.objects.all().prefetch_related("skills")
+    serializer_class = SpecializationSkillSerializer
+    permission_classes = (IsAuthenticated,)
+
 
 class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
 
@@ -75,7 +76,11 @@ class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
     Получение соискателя или списка соискателей.
     """
 
-    queryset = Applicant.objects.all()
+    queryset = (
+        Applicant.objects.all()
+        .select_related("specialization")
+        .prefetch_related("skills")
+    )
     serializer_class = ApplicantSerializer
 
     @action(

@@ -19,18 +19,6 @@ from vacancies.models import Vacancy
 User = get_user_model()
 
 
-class ListRetrievePutDeleteViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
-    """Обобщенное представление для обработки GET, PUT, DELETE запросов."""
-
-    pass
-
-
 class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -58,7 +46,7 @@ class VacancyViewSet(
         return Response(serializer.data)
 
 
-class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
+class SpecializationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Вьюсет для специализаций.
     Получение списка специализаций и связанных с ними навыков.
@@ -69,7 +57,9 @@ class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated,)
 
 
-class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
+class ApplicantsViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
 
     """
     Вьюсет для соискателей.
@@ -82,18 +72,7 @@ class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
         .prefetch_related("skills")
     )
     serializer_class = ApplicantSerializer
-
-    def update(self, request, *args, **kwargs):
-        response_data = {"error": "Обновление отключено."}
-        return Response(
-            response_data, status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
-
-    def destroy(self, request, *args, **kwargs):
-        response_data = {"error": "Удаление отключено."}
-        return Response(
-            response_data, status=status.HTTP_405_METHOD_NOT_ALLOWED
-        )
+    permission_classes = (IsAuthenticated,)
 
     @action(
         methods=["put", "delete"],

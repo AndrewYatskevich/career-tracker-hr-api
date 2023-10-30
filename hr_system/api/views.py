@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import MethodNotAllowed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -82,6 +83,18 @@ class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
         .prefetch_related("skills")
     )
     serializer_class = ApplicantSerializer
+
+    def update(self, request, *args, **kwargs):
+        response_data = {"error": "Обновление отключено."}
+        return Response(
+            response_data, status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
+
+    def destroy(self, request, *args, **kwargs):
+        response_data = {"error": "Удаление отключено."}
+        return Response(
+            response_data, status=status.HTTP_405_METHOD_NOT_ALLOWED
+        )
 
     @action(
         methods=["put", "delete"],

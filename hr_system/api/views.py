@@ -27,7 +27,11 @@ class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 class VacancyViewSet(
     mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
 ):
-    queryset = Vacancy.objects.all()
+    queryset = (
+        Vacancy.objects.all()
+        .select_related("user")
+        .prefetch_related("location_type")
+    )
     serializer_class = VacancyDetailSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -42,7 +46,16 @@ class VacancyViewSet(
         url_path="my",
     )
     def get_my_vacancies(self, request):
-        serializer = VacancySerializer(request.user.vacancies.all(), many=True)
+        queryset = (
+            request.user.vacancies.all()
+            .select_related("user")
+            .prefetch_related(
+                "location_type",
+                "employment_type",
+                "skills",
+            )
+        )
+        serializer = VacancySerializer(queryset, many=True)
         return Response(serializer.data)
 
 
@@ -60,7 +73,6 @@ class SpecializationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 class ApplicantsViewSet(
     mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
 ):
-
     """
     Вьюсет для соискателей.
     Получение соискателя или списка соискателей.

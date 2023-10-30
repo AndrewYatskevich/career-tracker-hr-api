@@ -45,12 +45,7 @@ class VacancyViewSet(
 ):
     """Вьюсет для вакансий."""
 
-    queryset = Vacancy.objects.all()
-    queryset = (
-        Vacancy.objects.all()
-        .select_related("user")
-        .prefetch_related("location_type")
-    )
+    queryset = Vacancy.objects.all().select_related("user")
     serializer_class = VacancyDetailSerializer
     http_method_names = ("get", "post", "patch", "delete")
 
@@ -71,16 +66,8 @@ class VacancyViewSet(
     def get_my_vacancies(self, request):
         """Получение вакансий пользователя."""
 
-        serializer = VacancySerializer(request.user.vacancies.all(), many=True)
-        queryset = (
-            request.user.vacancies.all()
-            .select_related("user")
-            .prefetch_related(
-                "location_type",
-                "employment_type",
-                "skills",
-            )
-        )
+        user = User.objects.all()[0]
+        queryset = user.vacancies.all().select_related("user")
         serializer = VacancySerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -93,7 +80,6 @@ class SpecializationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     queryset = Specialization.objects.all().prefetch_related("skills")
     serializer_class = SpecializationSkillSerializer
-    permission_classes = (IsAuthenticated,)
 
 
 class ApplicantsViewSet(

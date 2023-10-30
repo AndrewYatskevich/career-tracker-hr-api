@@ -13,7 +13,7 @@ repos:
     hooks:
       - id: isort
         name: isort
-        exclude: (migrations)
+        exclude: (migrations|tests)
         args: [ --profile, black, --line-length=79, --src-path, hr_system ]
 
 
@@ -21,5 +21,5 @@ repos:
     rev: 23.3.0
     hooks:
       - id: black
-        exclude: (migrations)
+        exclude: (migrations|tests)
         args: [ --line-length=79 ]

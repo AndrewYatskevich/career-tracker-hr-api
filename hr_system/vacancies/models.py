@@ -8,26 +8,13 @@ from vacancies.enums import (
     CurrencyType,
     EmploymentType,
     VacancyStatus,
-    WorkLocationType,
+    WorkplaceType,
 )
 
 user = get_user_model()
 
 WAGE_AMOUNT_VALIDATORS = [MinValueValidator(1), MaxValueValidator(10000000)]
-
-
-class WorkLocation(models.Model):
-    type = models.CharField(choices=WorkLocationType.choices)
-
-    def __str__(self) -> str:
-        return f"{self.type}"
-
-
-class Employment(models.Model):
-    type = models.CharField(choices=EmploymentType.choices)
-
-    def __str__(self) -> str:
-        return f"{self.type}"
+EXPERIENCE_AMOUNT_VALIDATORS = [MinValueValidator(1), MaxValueValidator(100)]
 
 
 class Vacancy(models.Model):
@@ -37,40 +24,37 @@ class Vacancy(models.Model):
     department = models.CharField(max_length=settings.NAME_MAX_LENGTH)
     name = models.CharField(max_length=settings.NAME_MAX_LENGTH)
     city = models.CharField(max_length=settings.NAME_MAX_LENGTH)
-    location_type = models.ManyToManyField(
-        WorkLocation, related_name="vacancies"
+    workplace = models.CharField(choices=WorkplaceType.choices)
+    wage_min = models.IntegerField(validators=WAGE_AMOUNT_VALIDATORS)
+    wage_max = models.IntegerField(validators=WAGE_AMOUNT_VALIDATORS)
+    wage_currency = models.CharField(choices=CurrencyType.choices)
+    experience_min = models.IntegerField(
+        validators=EXPERIENCE_AMOUNT_VALIDATORS
+    )
+    experience_max = models.IntegerField(
+        validators=EXPERIENCE_AMOUNT_VALIDATORS
     )
     description = models.TextField(max_length=settings.ABOUT_MAX_LENGTH)
     responsibilities = models.TextField(max_length=settings.ABOUT_MAX_LENGTH)
     requirements = models.TextField(max_length=settings.ABOUT_MAX_LENGTH)
     benefits = models.TextField(max_length=settings.ABOUT_MAX_LENGTH)
     skills = models.ManyToManyField(Skill, related_name="vacancies")
-    employment_type = models.ManyToManyField(
-        Employment, related_name="vacancies"
-    )
+    employment_type = models.CharField(choices=EmploymentType.choices)
     status = models.CharField(
         choices=VacancyStatus.choices, default=VacancyStatus.ACTIVE
-    )
-
-    def __str__(self) -> str:
-        return f"{self.name}"
-
-
-class Wage(models.Model):
-    min_amount = models.IntegerField(validators=WAGE_AMOUNT_VALIDATORS)
-    max_amount = models.IntegerField(validators=WAGE_AMOUNT_VALIDATORS)
-    currency = models.CharField(choices=CurrencyType.choices)
-    vacancy = models.OneToOneField(
-        Vacancy, on_delete=models.CASCADE, related_name="wage"
     )
 
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=models.Q(min_amount__lt=models.F("max_amount")),
-                name="min_amount_lt_max_amount",
-            )
+                check=models.Q(wage_min__lt=models.F("wage_max")),
+                name="wage_min_lt_wage_max",
+            ),
+            models.CheckConstraint(
+                check=models.Q(experience_min__lt=models.F("experience_max")),
+                name="experience_min_lt_experience_max",
+            ),
         ]
 
     def __str__(self) -> str:
-        return f"{self.vacancy}"
+        return f"{self.name}"

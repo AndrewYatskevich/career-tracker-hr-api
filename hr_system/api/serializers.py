@@ -3,7 +3,7 @@ from rest_framework.fields import SerializerMethodField
 
 from api.utils import extract_domain
 from applicants.models import Applicant, Skill, Specialization, User
-from vacancies.models import Employment, Vacancy, Wage, WorkLocation
+from vacancies.models import Vacancy
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -12,30 +12,20 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ("company_name", "image")
 
 
-class WageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Wage
-        fields = ("min_amount", "max_amount", "currency")
-
-        
 class VacancySerializer(serializers.ModelSerializer):
-    location_type = serializers.SlugRelatedField(
-        read_only=True, many=True, slug_field="type"
+    company_name = serializers.SlugRelatedField(
+        source="user", read_only=True, slug_field="company_name"
     )
 
     class Meta:
         model = Vacancy
-        fields = ("name", "city", "location_type")
+        fields = ("id", "name", "city", "workplace", "company_name")
 
 
 class VacancyDetailSerializer(serializers.ModelSerializer):
-    location_type = serializers.SlugRelatedField(
-        queryset=WorkLocation.objects.all(), many=True, slug_field="type"
+    company_name = serializers.SlugRelatedField(
+        source="user", read_only=True, slug_field="company_name"
     )
-    employment_type = serializers.SlugRelatedField(
-        queryset=Employment.objects.all(), many=True, slug_field="type"
-    )
-    wage = WageSerializer()
     skills = serializers.SlugRelatedField(
         queryset=Skill.objects.all(), many=True, slug_field="name"
     )
@@ -43,14 +33,9 @@ class VacancyDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Vacancy
         fields = "__all__"
+        read_only_fields = ("user",)
 
-    def create(self, validated_data):
-        wage_data = validated_data.pop("wage")
-        vacancy = super().create(validated_data)
-        Wage.objects.create(vacancy=vacancy, **wage_data)
-        return vacancy
 
-      
 class SkillSerializer(serializers.ModelSerializer):
     """Сериализатор для навыков."""
 
@@ -73,7 +58,7 @@ class SpecializationSkillSerializer(serializers.ModelSerializer):
 
         return list(specialization.skills.values_list("name", flat=True))
 
-      
+
 class SpecializationSerializer(serializers.ModelSerializer):
     """Сериализатор для специализаций."""
 

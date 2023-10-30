@@ -1,8 +1,5 @@
 from django.contrib import admin
 
-from vacancies.models import Employment, Vacancy, Wage, WorkLocation
+from vacancies.models import Vacancy
 
 admin.site.register(Vacancy)
-admin.site.register(WorkLocation)
-admin.site.register(Employment)
-admin.site.register(Wage)

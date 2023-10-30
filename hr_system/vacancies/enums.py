@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class WorkLocationType(models.TextChoices):
+class WorkplaceType(models.TextChoices):
     ONSITE = "Офис"
     HYBRID = "Гибрид"
     REMOTE = "Удалённо"

@@ -46,6 +46,11 @@ class VacancyViewSet(
     """Вьюсет для вакансий."""
 
     queryset = Vacancy.objects.all()
+    queryset = (
+        Vacancy.objects.all()
+        .select_related("user")
+        .prefetch_related("location_type")
+    )
     serializer_class = VacancyDetailSerializer
     http_method_names = ("get", "post", "patch", "delete")
 
@@ -67,26 +72,43 @@ class VacancyViewSet(
         """Получение вакансий пользователя."""
 
         serializer = VacancySerializer(request.user.vacancies.all(), many=True)
+        queryset = (
+            request.user.vacancies.all()
+            .select_related("user")
+            .prefetch_related(
+                "location_type",
+                "employment_type",
+                "skills",
+            )
+        )
+        serializer = VacancySerializer(queryset, many=True)
         return Response(serializer.data)
 
 
-class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
+class SpecializationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Вьюсет для специализаций.
     Получение списка специализаций и связанных с ними навыков.
     """
 
-    queryset = Specialization.objects.all()
+    queryset = Specialization.objects.all().prefetch_related("skills")
     serializer_class = SpecializationSkillSerializer
+    permission_classes = (IsAuthenticated,)
 
 
-class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
+class ApplicantsViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     Вьюсет для соискателей.
     Получение соискателя или списка соискателей.
     """
 
-    queryset = Applicant.objects.all()
+    queryset = (
+        Applicant.objects.all()
+        .select_related("specialization")
+        .prefetch_related("skills")
+    )
     serializer_class = ApplicantSerializer
 
     @action(

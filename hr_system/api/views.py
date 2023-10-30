@@ -6,7 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from applicants.models import Applicant, Favorites, Specialization
 from api.serializers import (
     ApplicantSerializer,
     SpecializationSkillSerializer,
@@ -14,23 +13,12 @@ from api.serializers import (
     VacancyDetailSerializer,
     VacancySerializer,
 )
+from applicants.models import Applicant, Favorites, Specialization
 from vacancies.models import Vacancy
 
 User = get_user_model()
 
 
-class ListRetrievePutDeleteViewSet(
-    mixins.ListModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
-):
-    """Обобщенное представление для обработки GET, PUT, DELETE запросов."""
-
-    pass
-
-  
 class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -39,7 +27,11 @@ class UserViewSet(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
 class VacancyViewSet(
     mixins.CreateModelMixin, mixins.ListModelMixin, viewsets.GenericViewSet
 ):
-    queryset = Vacancy.objects.all()
+    queryset = (
+        Vacancy.objects.all()
+        .select_related("user")
+        .prefetch_related("location_type")
+    )
     serializer_class = VacancyDetailSerializer
     permission_classes = (IsAuthenticated,)
 
@@ -54,29 +46,45 @@ class VacancyViewSet(
         url_path="my",
     )
     def get_my_vacancies(self, request):
-        serializer = VacancySerializer(request.user.vacancies.all(), many=True)
+        queryset = (
+            request.user.vacancies.all()
+            .select_related("user")
+            .prefetch_related(
+                "location_type",
+                "employment_type",
+                "skills",
+            )
+        )
+        serializer = VacancySerializer(queryset, many=True)
         return Response(serializer.data)
 
-      
-class SpecializationViewSet(viewsets.ReadOnlyModelViewSet):
+
+class SpecializationViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     Вьюсет для специализаций.
     Получение списка специализаций и связанных с ними навыков.
     """
 
-    queryset = Specialization.objects.all()
-    serializer_class = SpecializationSkillSerializer     
-      
+    queryset = Specialization.objects.all().prefetch_related("skills")
+    serializer_class = SpecializationSkillSerializer
+    permission_classes = (IsAuthenticated,)
 
-class ApplicantsViewSet(ListRetrievePutDeleteViewSet):
 
+class ApplicantsViewSet(
+    mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet
+):
     """
     Вьюсет для соискателей.
     Получение соискателя или списка соискателей.
     """
 
-    queryset = Applicant.objects.all()
+    queryset = (
+        Applicant.objects.all()
+        .select_related("specialization")
+        .prefetch_related("skills")
+    )
     serializer_class = ApplicantSerializer
+    permission_classes = (IsAuthenticated,)
 
     @action(
         methods=["put", "delete"],

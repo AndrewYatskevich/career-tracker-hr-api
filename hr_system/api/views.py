@@ -49,10 +49,10 @@ class VacancyViewSet(
     serializer_class = VacancyDetailSerializer
     http_method_names = ("get", "post", "patch", "delete")
 
-    def get_serializer_class(self):
-        if self.action == "list":
-            return VacancySerializer
-        return super().get_serializer_class()
+    # def get_serializer_class(self):
+    #     if self.action == "list":
+    #         return VacancySerializer
+    #     return super().get_serializer_class()
 
     def perform_create(self, serializer):
         user = User.objects.all()[0]
@@ -105,7 +105,8 @@ class ApplicantsViewSet(
         """Добавление, удаление соискателя из избранного."""
 
         applicant = get_object_or_404(Applicant, pk=pk)
-        user = request.user
+        # user = request.user
+        user = User.objects.all()[0]
         applicant_in_favorites = user.favorites.filter(applicant=applicant)
 
         if request.method == "PUT" and not applicant_in_favorites.exists():

@@ -17,6 +17,7 @@ djangorestframework-simplejwt = "^5.3.0"
 django-cors-headers = "^4.3.0"
 gunicorn = "^21.2.0"
 drf-yasg = "^1.21.7"
+django-filter = "^23.3"
 
 
 [tool.poetry.group.dev.dependencies]
